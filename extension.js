@@ -18,29 +18,22 @@
 
 /* exported init */
 
-const { GObject, St, Gio } = imports.gi;
+const { GObject, St, Gio, Clutter } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
+const Meta = imports.gi.Meta
+const Shell = imports.gi.Shell
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const { loadInterfaceXML } = imports.misc.fileUtils;
 
 const BUS_NAME = 'org.gnome.SettingsDaemon.Power';
 const OBJECT_PATH = '/org/gnome/SettingsDaemon/Power';
-
+// global.display.get_focus_window().get_compositor_private().add_effect(new Clutter.ColorizeEffect({tint: Clutter.Color.from_hls(0,0.5,0)}))
 const BrightnessInterface = loadInterfaceXML('org.gnome.SettingsDaemon.Power.Screen');
 const BrightnessProxy = Gio.DBusProxy.makeProxyWrapper(BrightnessInterface);
-let proxy = new BrightnessProxy(Gio.DBus.session, BUS_NAME, OBJECT_PATH,
-    (proxy, error) => {
-        if (error) {
-            log(error.message);
-            return;
-        }
-
-        this._proxy.connect('g-properties-changed', this._sync.bind(this));
-        this._sync();
-    });
+let proxy = new BrightnessProxy(Gio.DBus.session, BUS_NAME, OBJECT_PATH);
 let btn = null;
 const brightnessData = {}
 class Extension {
@@ -49,6 +42,32 @@ class Extension {
     }
 
     enable() {
+
+        let my_settings = ExtensionUtils.getSettings("org.gnome.shell.extensions.hello.cj");
+
+        Main.wm.addKeybinding("dim", my_settings,
+            Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+            Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW, () => {
+                log("dim");
+                // global.display.get_focus_window().get_compositor_private().add_effect(new Clutter.ColorizeEffect({tint: Clutter.Color.from_hls(0,0.5,0)}))
+                if (this.slider){
+                    this.box.destroy();
+                    this.slider = false;
+                    return;
+                }
+                let win = global.display.get_focus_window().get_compositor_private();
+                this.box = new St.BoxLayout({ width: 200, style_class: "chin-btn", x: win.width / 2 - 100 });
+                let slider = new imports.ui.slider.Slider(1)
+                slider.connect("notify::value", () => {
+                    win.clear_effects();
+                    win.add_effect(new Clutter.ColorizeEffect({ tint: Clutter.Color.from_hls(0, slider.value, 0) }))
+                })
+                this.box.add_child(slider)
+                win.add_child(this.box);
+                this.slider = true;
+            });
+
+
         btn = new PanelMenu.Button(0, 'rand');
         btn.add_child(new St.Icon({
             icon_name: 'display-brightness-symbolic',
@@ -58,18 +77,27 @@ class Extension {
         let item2 = new PopupMenu.PopupMenuItem('item2');
         let item3 = new PopupMenu.PopupMenuItem('item3');
         let item4 = new PopupMenu.PopupMenuItem('item4');
-        let item5 = new PopupMenu.PopupMenuItem('item5');
+        let item5 = new PopupMenu.PopupBaseMenuItem({ activate: false });
+        item5.add_child(new imports.ui.slider.Slider(0));
         btn.menu.addMenuItem(item1);
         btn.menu.addMenuItem(item2);
         btn.menu.addMenuItem(item3);
         btn.menu.addMenuItem(item4);
         btn.menu.addMenuItem(item5);
+
+        // let btn2 = new St.Button({ label: "btdsads", style_class: "chin-btn", x: 1500, y: 100 })
+        // btn2.connect("clicked", (n) => {
+        //     log("clicked", n)
+        // });
+        // global.window_group.add_child(btn2)
+
+
         Main.panel.addToStatusArea(this._uuid, btn);
         global.workspace_manager.connect('workspace-switched', () => {
             let to = global.workspace_manager.get_active_workspace_index();
             // log("changed", this.from, to, brightnessData[this.from], brightnessData[to]);
             brightnessData[this.from] = proxy.Brightness;
-            if(brightnessData[to]) proxy.Brightness = brightnessData[to];
+            if (brightnessData[to] !== undefined) proxy.Brightness = brightnessData[to];
             this.from = to;
         });
     }

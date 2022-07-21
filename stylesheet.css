@@ -1,1 +1,7 @@
 /* Add your custom extension styling here */
+.chin-btn{
+  color: white;
+  background-color: black;
+  padding: 10px;
+  border-radius: 5px;
+}
