@@ -1,0 +1,8 @@
+{
+  "name": "Hello World",
+  "description": "Test",
+  "uuid": "hello@chinmay.jain.com",
+  "shell-version": [
+    "40"
+  ]
+}
