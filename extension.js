@@ -50,18 +50,32 @@ class Extension {
             Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW, () => {
                 log("dim");
                 // global.display.get_focus_window().get_compositor_private().add_effect(new Clutter.ColorizeEffect({tint: Clutter.Color.from_hls(0,0.5,0)}))
-                if (this.slider){
+                if (this.slider) {
                     this.box.destroy();
                     this.slider = false;
                     return;
                 }
-                let win = global.display.get_focus_window().get_compositor_private();
-                this.box = new St.BoxLayout({ width: 200, style_class: "chin-btn", x: win.width / 2 - 100 });
+                let fwin = global.display.get_focus_window();
+                let rect = fwin.get_frame_rect();
+                let win = fwin.get_compositor_private();
+                let overlay = new St.BoxLayout({ width: rect.width, height: rect.height, x: rect.x - win.x, y: rect.y - win.y, style_class: "chin-btn", opacity: 0 })
+                win.add_child(overlay);
+                this.box = new St.BoxLayout({
+                    reactive: true,
+                    track_hover: true,
+                    can_focus: true, width: 200, style_class: "chin-btn", x: win.width / 2 - 100, y: rect.y - win.y + rect.height - 50
+                });
                 let slider = new imports.ui.slider.Slider(1)
                 slider.connect("notify::value", () => {
-                    win.clear_effects();
-                    if(slider.value > 0.9) return;
-                    win.add_effect(new Clutter.ColorizeEffect({ tint: Clutter.Color.from_hls(0, slider.value, 0) }))
+                    // win.clear_effects();
+                    // if(slider.value > 0.9) return;
+                    // win.add_effect(new Clutter.ColorizeEffect({ tint: Clutter.Color.from_hls(0, slider.value, 0) }))
+                    overlay.set_opacity((1 - slider.value) * 255);
+                })
+                win.connect("notify::size", () => {
+                    this.box.set_position(win.width / 2 - 100, fwin.get_frame_rect().y - win.y + fwin.get_frame_rect().height - 50)
+                    overlay.set_width(fwin.get_frame_rect().width);
+                    overlay.set_height(fwin.get_frame_rect().height);
                 })
                 this.box.add_child(slider)
                 win.add_child(this.box);
