@@ -60,6 +60,7 @@ class Extension {
                 let slider = new imports.ui.slider.Slider(1)
                 slider.connect("notify::value", () => {
                     win.clear_effects();
+                    if(slider.value > 0.9) return;
                     win.add_effect(new Clutter.ColorizeEffect({ tint: Clutter.Color.from_hls(0, slider.value, 0) }))
                 })
                 this.box.add_child(slider)
