@@ -28,14 +28,7 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const { loadInterfaceXML } = imports.misc.fileUtils;
 
-const BUS_NAME = 'org.gnome.SettingsDaemon.Power';
-const OBJECT_PATH = '/org/gnome/SettingsDaemon/Power';
-// global.display.get_focus_window().get_compositor_private().add_effect(new Clutter.ColorizeEffect({tint: Clutter.Color.from_hls(0,0.5,0)}))
-const BrightnessInterface = loadInterfaceXML('org.gnome.SettingsDaemon.Power.Screen');
-const BrightnessProxy = Gio.DBusProxy.makeProxyWrapper(BrightnessInterface);
-let proxy = new BrightnessProxy(Gio.DBus.session, BUS_NAME, OBJECT_PATH);
 let btn = null;
-const brightnessData = {}
 class Extension {
     constructor(uuid) {
         this._uuid = uuid;
@@ -45,41 +38,10 @@ class Extension {
 
         let my_settings = ExtensionUtils.getSettings("org.gnome.shell.extensions.hello.cj");
 
-        Main.wm.addKeybinding("dim", my_settings,
+        Main.wm.addKeybinding("test", my_settings,
             Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
             Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW, () => {
-                log("dim");
-                // global.display.get_focus_window().get_compositor_private().add_effect(new Clutter.ColorizeEffect({tint: Clutter.Color.from_hls(0,0.5,0)}))
-                if (this.slider) {
-                    this.box.destroy();
-                    this.slider = false;
-                    return;
-                }
-                let fwin = global.display.get_focus_window();
-                let rect = fwin.get_frame_rect();
-                let win = fwin.get_compositor_private();
-                let overlay = new St.BoxLayout({ width: rect.width, height: rect.height, x: rect.x - win.x, y: rect.y - win.y, style_class: "chin-btn", opacity: 0 })
-                win.add_child(overlay);
-                this.box = new St.BoxLayout({
-                    reactive: true,
-                    track_hover: true,
-                    can_focus: true, width: 200, style_class: "chin-btn", x: win.width / 2 - 100, y: rect.y - win.y + rect.height - 50
-                });
-                let slider = new imports.ui.slider.Slider(1)
-                slider.connect("notify::value", () => {
-                    // win.clear_effects();
-                    // if(slider.value > 0.9) return;
-                    // win.add_effect(new Clutter.ColorizeEffect({ tint: Clutter.Color.from_hls(0, slider.value, 0) }))
-                    overlay.set_opacity((1 - slider.value) * 255);
-                })
-                win.connect("notify::size", () => {
-                    this.box.set_position(win.width / 2 - 100, fwin.get_frame_rect().y - win.y + fwin.get_frame_rect().height - 50)
-                    overlay.set_width(fwin.get_frame_rect().width);
-                    overlay.set_height(fwin.get_frame_rect().height);
-                })
-                this.box.add_child(slider)
-                win.add_child(this.box);
-                this.slider = true;
+                log("test");
             });
 
 
@@ -88,33 +50,41 @@ class Extension {
             icon_name: 'display-brightness-symbolic',
             style_class: 'system-status-icon',
         }));
-        let item1 = new PopupMenu.PopupMenuItem('item1');
-        let item2 = new PopupMenu.PopupMenuItem('item2');
-        let item3 = new PopupMenu.PopupMenuItem('item3');
-        let item4 = new PopupMenu.PopupMenuItem('item4');
+
         let item5 = new PopupMenu.PopupBaseMenuItem({ activate: false });
         item5.add_child(new imports.ui.slider.Slider(0));
-        btn.menu.addMenuItem(item1);
-        btn.menu.addMenuItem(item2);
-        btn.menu.addMenuItem(item3);
-        btn.menu.addMenuItem(item4);
         btn.menu.addMenuItem(item5);
 
-        // let btn2 = new St.Button({ label: "btdsads", style_class: "chin-btn", x: 1500, y: 100 })
-        // btn2.connect("clicked", (n) => {
-        //     log("clicked", n)
-        // });
-        // global.window_group.add_child(btn2)
-
-
         Main.panel.addToStatusArea(this._uuid, btn);
-        global.workspace_manager.connect('workspace-switched', () => {
-            let to = global.workspace_manager.get_active_workspace_index();
-            // log("changed", this.from, to, brightnessData[this.from], brightnessData[to]);
-            brightnessData[this.from] = proxy.Brightness;
-            if (brightnessData[to] !== undefined) proxy.Brightness = brightnessData[to];
-            this.from = to;
-        });
+
+        let tb = new St.Button({ label: "a", style: "background-color: #000000; padding: 50px;", x: 1000, y: 800 })
+        global.window_group.add_child(tb);
+
+        let posStart = null;
+        let start = null, end = null;
+        tb.connect("button-press-event", (a, e) => {
+            start = e.get_coords();
+            posStart = [tb.x, tb.y];
+            log("press", start);
+        })
+        let ff = (a, e) => {
+            if (start) {
+                end = e.get_coords();
+                log("release", end);
+                tb.set_position(posStart[0] + end[0] - start[0], posStart[1] + end[1] - start[1]);
+                tb.set_translation(0, 0, 0);
+                start = null;
+            }
+        }
+        tb.connect("leave-event", ff)
+        tb.connect("button-release-event", ff)
+        tb.connect("motion-event", (a, e) => {
+            if (start) {
+                let curr = e.get_coords();
+                tb.set_translation(curr[0] - start[0], curr[1] - start[1], 0);
+            }
+        })
+
     }
 
     disable() {

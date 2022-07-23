@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
     <schema id="org.gnome.shell.extensions.hello.cj" path="/org/gnome/shell/extensions/hello/cj/">
-        <key name="dim" type="as">
-            <default><![CDATA[['<Super>B']]]></default>
+        <key name="test" type="as">
+            <default><![CDATA[['<Super><ctrl>W']]]></default>
             <summary>dim</summary>
         </key>
     </schema>
