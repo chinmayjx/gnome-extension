@@ -35,7 +35,7 @@ class Extension {
     }
 
     enable() {
-
+        let displaySize = global.display.get_size();
         let my_settings = ExtensionUtils.getSettings("org.gnome.shell.extensions.hello.cj");
 
         Main.wm.addKeybinding("test", my_settings,
@@ -57,8 +57,12 @@ class Extension {
 
         Main.panel.addToStatusArea(this._uuid, btn);
 
-        let tb = new St.Button({ label: "a", style: "background-color: #000000; padding: 50px;", x: 1000, y: 800 })
-        global.window_group.add_child(tb);
+
+        let tbc = new Clutter.Actor({ width: displaySize[0], height: displaySize[1], reactive: true });
+        tbc.set_background_color(Clutter.Color.new(0,0,0,80));
+        let tb = new St.Button({ label: "a", style: "background-color: #000000; padding: 50px;", x: 50, y: 50,  })
+        tbc.add_child(tb);
+        global.window_group.add_child(tbc);
 
         let posStart = null;
         let start = null, end = null;
@@ -76,7 +80,7 @@ class Extension {
                 start = null;
             }
         }
-        tb.connect("leave-event", ff)
+        // tb.connect("leave-event", ff)
         tb.connect("button-release-event", ff)
         tb.connect("motion-event", (a, e) => {
             if (start) {
