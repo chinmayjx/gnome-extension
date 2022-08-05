@@ -36,58 +36,26 @@ class Extension {
 
     enable() {
         let displaySize = global.display.get_size();
-        let my_settings = ExtensionUtils.getSettings("org.gnome.shell.extensions.hello.cj");
+        let s1 = ExtensionUtils.getSettings("org.gnome.shell.extensions.hello.cj.s1");
 
-        Main.wm.addKeybinding("test", my_settings,
+        Main.wm.addKeybinding("b1", s1,
             Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
             Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW, () => {
-                log("test");
+                imports.ui.main.uiGroup.find_child_by_name("dashtodockContainer")._activateApp(0)
+                log("b1");
             });
-
-
-        btn = new PanelMenu.Button(0, 'rand');
-        btn.add_child(new St.Icon({
-            icon_name: 'display-brightness-symbolic',
-            style_class: 'system-status-icon',
-        }));
-
-        let item5 = new PopupMenu.PopupBaseMenuItem({ activate: false });
-        item5.add_child(new imports.ui.slider.Slider(0));
-        btn.menu.addMenuItem(item5);
-
-        Main.panel.addToStatusArea(this._uuid, btn);
-
-
-        let tbc = new Clutter.Actor({ width: displaySize[0], height: displaySize[1], reactive: true });
-        tbc.set_background_color(Clutter.Color.new(0,0,0,80));
-        let tb = new St.Button({ label: "a", style: "background-color: #000000; padding: 50px;", x: 50, y: 50,  })
-        tbc.add_child(tb);
-        global.window_group.add_child(tbc);
-
-        let posStart = null;
-        let start = null, end = null;
-        tb.connect("button-press-event", (a, e) => {
-            start = e.get_coords();
-            posStart = [tb.x, tb.y];
-            log("press", start);
-        })
-        let ff = (a, e) => {
-            if (start) {
-                end = e.get_coords();
-                log("release", end);
-                tb.set_position(posStart[0] + end[0] - start[0], posStart[1] + end[1] - start[1]);
-                tb.set_translation(0, 0, 0);
-                start = null;
-            }
-        }
-        // tb.connect("leave-event", ff)
-        tb.connect("button-release-event", ff)
-        tb.connect("motion-event", (a, e) => {
-            if (start) {
-                let curr = e.get_coords();
-                tb.set_translation(curr[0] - start[0], curr[1] - start[1], 0);
-            }
-        })
+        Main.wm.addKeybinding("b2", s1,
+            Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+            Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW, () => {
+                imports.ui.main.uiGroup.find_child_by_name("dashtodockContainer")._activateApp(1)
+                log("b2");
+            });
+        Main.wm.addKeybinding("b3", s1,
+            Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+            Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW, () => {
+                imports.ui.main.uiGroup.find_child_by_name("dashtodockContainer")._activateApp(2)
+                log("b3");
+            });
 
     }
 
