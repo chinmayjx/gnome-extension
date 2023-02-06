@@ -13,5 +13,17 @@
             <default><![CDATA[['<Super>3']]]></default>
             <summary>dim</summary>
         </key>
+        <key name="b4" type="as">
+            <default><![CDATA[['<Super>4']]]></default>
+            <summary>dim</summary>
+        </key>
+        <key name="b5" type="as">
+            <default><![CDATA[['<Super>5']]]></default>
+            <summary>dim</summary>
+        </key>
+        <key name="b6" type="as">
+            <default><![CDATA[['<Super>6']]]></default>
+            <summary>dim</summary>
+        </key>
     </schema>
 </schemalist>

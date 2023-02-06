@@ -38,24 +38,14 @@ class Extension {
         let displaySize = global.display.get_size();
         let s1 = ExtensionUtils.getSettings("org.gnome.shell.extensions.hello.cj.s1");
 
-        Main.wm.addKeybinding("b1", s1,
+        for(let i=1;i<=6;i++){
+          Main.wm.addKeybinding(`b${i}`, s1,
             Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
             Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW, () => {
-                imports.ui.main.uiGroup.find_child_by_name("dashtodockContainer")._activateApp(0)
-                log("b1");
+              imports.ui.main.uiGroup.find_child_by_name("dashtodockContainer")._activateApp(i-1)
+              log(`b${i}`);
             });
-        Main.wm.addKeybinding("b2", s1,
-            Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
-            Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW, () => {
-                imports.ui.main.uiGroup.find_child_by_name("dashtodockContainer")._activateApp(1)
-                log("b2");
-            });
-        Main.wm.addKeybinding("b3", s1,
-            Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
-            Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW, () => {
-                imports.ui.main.uiGroup.find_child_by_name("dashtodockContainer")._activateApp(2)
-                log("b3");
-            });
+        }
 
     }
 
