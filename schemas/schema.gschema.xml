@@ -14,15 +14,15 @@
             <summary>dim</summary>
         </key>
         <key name="b4" type="as">
-            <default><![CDATA[['<Super>4']]]></default>
+            <default><![CDATA[['<Super>q']]]></default>
             <summary>dim</summary>
         </key>
         <key name="b5" type="as">
-            <default><![CDATA[['<Super>5']]]></default>
+            <default><![CDATA[['<Super>w']]]></default>
             <summary>dim</summary>
         </key>
         <key name="b6" type="as">
-            <default><![CDATA[['<Super>6']]]></default>
+            <default><![CDATA[['<Super>e']]]></default>
             <summary>dim</summary>
         </key>
     </schema>
